@@ -1,3 +1,10 @@
+
+package server;
+
+import command.CommandExecutor;
+import storage.StudentsWishes;
+import storage.Vault;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -17,6 +24,9 @@ public class WishListServer {
     private final int port;
     private final Map<String, Set<String>> studentsWishes;
     private final ByteBuffer messageBuffer;
+    private final CommandExecutor commandExecutor;
+    private final Vault vault;
+
 
     private boolean isStarted = true;
 
@@ -24,6 +34,8 @@ public class WishListServer {
         this.port = port;
         this.studentsWishes = new HashMap<>();
         this.messageBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+        this.vault = new Vault();
+        this.commandExecutor = new CommandExecutor(new StudentsWishes(vault));
     }
 
     public static void main(String[] args) {
@@ -77,6 +89,7 @@ public class WishListServer {
         System.out.println("Server stopped");
     }
 
+
     public void stop() {
         isStarted = false;
     }
@@ -91,20 +104,20 @@ public class WishListServer {
 
         String command = message.split(" ")[0];
         String arguments = message.substring(message.indexOf(" ") + 1);
-
         String response = null;
-        switch (command) {
-            case "post-wish":
-                response = postWish(arguments);
-                break;
-            case "get-wish":
-                response = getWish();
-                break;
-            case "disconnect":
-                disconnect(key);
-                break;
-            default:
-                response = "[ Unknown command ]";
+
+        if(command.equals("register")){
+            response = vault.tryToRegister(arguments);
+
+        }else if(command.equals("login")){
+            response = vault.tryToLogin(arguments);
+
+        }else if(command.equals("disconnect")){
+            response = vault.tryToDisconnect(arguments);
+            disconnect(key);
+        }
+        else{
+            response = commandExecutor.execute(command,arguments);
         }
 
         if (response != null) {
@@ -126,34 +139,6 @@ public class WishListServer {
         System.out.println("Connection accepted from client " + accept.getRemoteAddress());
     }
 
-    private String postWish(String arguments) {
-        String[] argumentsArray = arguments.split("\\s+", 2);
-        String username = argumentsArray[0];
-        String gift = argumentsArray[1];
-
-        if (!studentsWishes.containsKey(username)) {
-            studentsWishes.put(username, new HashSet<>());
-        } else if (studentsWishes.get(username).contains(gift)) {
-            return "[ The same gift for student " + username + " was already submitted ]";
-        }
-
-        studentsWishes.get(username).add(gift);
-
-        return "[ Gift " + gift + " for student " + username + " submitted successfully ]";
-    }
-
-    private String getWish() {
-        if (studentsWishes.isEmpty()) {
-            return "[ There are no students present in the wish list ]";
-        }
-
-        List<String> students = new ArrayList<>(studentsWishes.keySet());
-        String randomStudent = students.get(RANDOM.nextInt(students.size()));
-        String randomStudentWishes = studentsWishes.get(randomStudent).toString();
-        studentsWishes.remove(randomStudent);
-
-        return "[ " + randomStudent + ": " + randomStudentWishes + " ]";
-    }
 
     private void disconnect(SelectionKey key) throws IOException {
         key.channel().close();
