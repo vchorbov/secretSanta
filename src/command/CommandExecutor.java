@@ -15,7 +15,7 @@ public class CommandExecutor {
                 response = studentsWishes.postWish(arguments);
                 break;
             case "get-wish":
-                response = studentsWishes.getWish();
+                response = studentsWishes.getWish(arguments);
                 break;
             default:
                 response = "[ Unknown command ]";

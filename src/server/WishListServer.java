@@ -115,6 +115,8 @@ public class WishListServer {
         }else if(command.equals("disconnect")){
             response = vault.tryToDisconnect(arguments);
             disconnect(key);
+        }else if(command.equals("logout")){
+            response = vault.tryToLogOut(arguments);
         }
         else{
             response = commandExecutor.execute(command,arguments);
@@ -141,7 +143,7 @@ public class WishListServer {
 
 
     private void disconnect(SelectionKey key) throws IOException {
-        key.channel().close();
+        //key.channel().close();
         key.cancel();
     }
 

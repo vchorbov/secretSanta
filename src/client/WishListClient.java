@@ -15,8 +15,8 @@ public class WishListClient {
 
     private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8888;
-    String loggedIn = "f";
-    String username = "unknown";
+   // String loggedIn = "f";
+  //  String username = "unknown";
 
 
     public WishListClient() {
@@ -39,20 +39,20 @@ public class WishListClient {
                 System.out.println("=> ");
                 // 2 additional chars which save info about the user -> add the username also cookies :)
                 String message = scanner.nextLine();
-                message = message+" "+loggedIn+" "+ username;
+             //   message = message+" "+loggedIn+" "+ username;
                 writer.println(message);
                 String line;
                 if ((line = reader.readLine()) != null) {
                     if(line.contains("successfully registered")){
-                        loggedIn = "t";
+                 //       loggedIn = "t";
                         String[] tokens = line.split(" +");
-                        username = tokens[2];
+                  //      username = tokens[2];
                     }else if(line.contains("successfully logged in")){
-                        loggedIn = "t";
+                   //     loggedIn = "t";
                     }else if(line.contains("Successfully logged out")){
-                        loggedIn = "f";
+                  //      loggedIn = "f";
                     }else if(line.contains("Disconnected from server")){
-                        loggedIn = "f";
+                  //      loggedIn = "f";
                     }
                     System.out.println(line);
                 }

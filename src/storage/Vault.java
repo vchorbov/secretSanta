@@ -9,9 +9,10 @@ import java.util.regex.Pattern;
 
 public class Vault {
 
-    private final Map<String, List<String>> vault;
+    private final Map<String, ArrayList<String>> vault;
 
     public Vault() {
+
         this.vault = new HashMap<>();
     }
 
@@ -26,7 +27,10 @@ public class Vault {
         if (userExists(username)) {
             return String.format(" Username %S is already taken, select another one ]", username);
         }
-        vault.put(username, List.of(password, "true"));
+
+        vault.put(username, new ArrayList<String>());
+        vault.get(username).add(password);
+        vault.get(username).add("true");
         return String.format("[ Username %s successfully registered ]", username);
 
     }
@@ -38,31 +42,58 @@ public class Vault {
 
 
         if (userExists(username) && passwordMatchesUser(username, password)) {
+            if (!vault.containsKey(username)) {
+                return "[ Invalid username/password combination ]";
+            }
             List<String> userData = vault.get(username);
             if (userData.get(1).equals("true")) {
                 return String.format("[ Username %s is already logged in ]", username);
             } else {
-                vault.get(username).add(1, "true");
+                vault.get(username).set(1, "true");
 
                 return String.format("[ User %s successfully logged in ]", username);
             }
         }
-
         return "[ Invalid username/password combination ]";
 
 
     }
 
     public String tryToDisconnect(String arguments) {
-        String[] tokens = arguments.split(" ");
-        String username = tokens[1];
 
-        if(vault.containsKey(username)){
-            vault.get(username).add(1, "false");
+        String username = arguments.trim();
+
+        if (vault.containsKey(username)) {
+
+            vault.get(username).set(1, "false");
         }
 
         return "[ Disconnected from server ]";
 
+    }
+
+    public String tryToLogOut(String arguments) {
+        String username = arguments.trim();
+
+        if (!vault.containsKey(username)) {
+            return " [ You are not registered ] ";
+        } else if (vault.get(username).get(1).equals("false")) {
+            return " [ You are not logged in ] ";
+        } else if (vault.get(username).get(1).equals("true")) {
+            vault.get(username).set(1, "false");
+            return "[ Successfully logged out ]";
+        }
+
+        return "[ Un successfully logged out ]";
+
+    }
+
+    public boolean userExists(String userName) {
+        return vault.containsKey(userName);
+    }
+
+    public boolean userIsLoggedIn(String userName) {
+        return vault.get(userName).get(1).equals("true");
     }
 
     private boolean validateUserName(String userName) {
@@ -73,11 +104,6 @@ public class Vault {
         return !(matcher.find() || !length);
 
     }
-
-    public boolean userExists(String userName) {
-        return vault.containsKey(userName);
-    }
-
 
     private boolean passwordMatchesUser(String username, String password) {
         List<String> userData = vault.get(username);
