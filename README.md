@@ -1,5 +1,5 @@
 # Secret Santa :santa: :gift:
-###client-server app
+### client-server console app
 
 => `register <username> <password>` # introduces a new user to the system and automatically logs the user in
 
