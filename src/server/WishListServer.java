@@ -1,9 +1,10 @@
 
 package server;
 
-import command.CommandExecutor;
-import storage.StudentsWishes;
-import storage.Vault;
+import commands.CommandExecutor;
+import commands.StudentsWishes;
+import commands.Vault;
+import storage.StudentsWishesStorage;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,7 +17,7 @@ import java.util.*;
 
 public class WishListServer {
 
-    private static final int SERVER_PORT = 8888;
+   // private static final int SERVER_PORT = 8888;
     private static final int BUFFER_SIZE = 1024;
     private static final String SERVER_HOST = "localhost";
     private static final Random RANDOM = new Random();
@@ -26,21 +27,20 @@ public class WishListServer {
     private final ByteBuffer messageBuffer;
     private final CommandExecutor commandExecutor;
     private final Vault vault;
+    private StudentsWishesStorage storage;
 
 
     private boolean isStarted = true;
 
-    public WishListServer(int port) {
+    public WishListServer(int port, Vault vault, StudentsWishesStorage storage) {
         this.port = port;
-        this.studentsWishes = new HashMap<>();
+        this.storage = storage;
+        this.studentsWishes = storage.getMap();
         this.messageBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-        this.vault = new Vault();
-        this.commandExecutor = new CommandExecutor(new StudentsWishes(vault));
+        this.vault = vault;
+        this.commandExecutor = new CommandExecutor(new StudentsWishes(vault,storage));
     }
 
-    public static void main(String[] args) {
-        new WishListServer(SERVER_PORT).start();
-    }
 
     public void start() {
         try (ServerSocketChannel serverSocketChannel = ServerSocketChannel.open()) {
@@ -104,6 +104,7 @@ public class WishListServer {
 
         String command = message.split(" ")[0];
         String arguments = message.substring(message.indexOf(" ") + 1);
+
         String response = null;
 
         if(command.equals("register")){
@@ -113,8 +114,9 @@ public class WishListServer {
             response = vault.tryToLogin(arguments);
 
         }else if(command.equals("disconnect")){
-            response = vault.tryToDisconnect(arguments);
-            disconnect(key);
+            response = vault.tryToDisconnect();
+            // serialize the data from StudentsWishesStorage storage
+             storage.saveStudents();
         }else if(command.equals("logout")){
             response = vault.tryToLogOut(arguments);
         }
@@ -129,6 +131,9 @@ public class WishListServer {
             buffer.put(response.getBytes());
             buffer.flip();
             socketChannel.write(buffer);
+            if(response.equals("[ Disconnected from server ]")){
+                disconnect(key);
+            }
         }
     }
 
@@ -143,7 +148,7 @@ public class WishListServer {
 
 
     private void disconnect(SelectionKey key) throws IOException {
-        //key.channel().close();
+        key.channel().close();
         key.cancel();
     }
 
