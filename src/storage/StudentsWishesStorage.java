@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class StudentsWishesStorage implements Serializable {
-    private Map<String, Set<String>> studentsWishes;
+    private Map<String, ArrayList<String>> studentsWishes;
     private static final Gson gson = new Gson();
     private final String FILE_LOCATION = "wishesDB";
 
@@ -19,7 +19,7 @@ public class StudentsWishesStorage implements Serializable {
     /**
      * @param studentsWishes
      */
-    public StudentsWishesStorage(Map<String, Set<String>> studentsWishes) {
+    public StudentsWishesStorage(Map<String, ArrayList<String>> studentsWishes) {
         this.studentsWishes = studentsWishes;
 
     }
@@ -39,7 +39,7 @@ public class StudentsWishesStorage implements Serializable {
         this.studentsWishes = new HashMap<>();
     }
 
-    public Map<String, Set<String>> getMap() {
+    public Map<String, ArrayList<String>> getMap() {
         return this.studentsWishes;
     }
     public void saveStudents(){
@@ -74,13 +74,13 @@ public class StudentsWishesStorage implements Serializable {
         return "";
     }
 
-    private Map<String, Set<String>> jsonToMap(String json) {
-        Map<String, Set<String>> retrievedMap;
+    private Map<String, ArrayList<String>> jsonToMap(String json) {
+        Map<String, ArrayList<String>> retrievedMap;
         retrievedMap = gson.fromJson(json, Map.class);
         return retrievedMap;
     }
 
-    private String mapTOJson(Map<String, Set<String>> studentsWishes) {
+    private String mapTOJson(Map<String, ArrayList<String>> studentsWishes) {
         Type gsonType = new TypeToken<HashMap>() {}.getType();
         String jsonString = gson.toJson(studentsWishes, gsonType);
         return jsonString;
