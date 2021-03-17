@@ -23,7 +23,7 @@ public class WishListServer {
     private static final Random RANDOM = new Random();
 
     private final int port;
-    private final Map<String, Set<String>> studentsWishes;
+    private final Map<String, ArrayList<String>> studentsWishes;
     private final ByteBuffer messageBuffer;
     private final CommandExecutor commandExecutor;
     private final Vault vault;
