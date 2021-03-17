@@ -7,7 +7,7 @@ import java.util.*;
 public class StudentsWishes {
 
     private StudentsWishesStorage storage;
-    private final Map<String, Set<String>> studentsWishes;
+    private final Map<String, ArrayList<String>> studentsWishes;
     private final Random RANDOM;
     private final Vault vault;
 
@@ -39,7 +39,7 @@ public class StudentsWishes {
         }
 
         if (!studentsWishes.containsKey(username)) {
-            studentsWishes.put(username, new HashSet<>());
+            studentsWishes.put(username, new ArrayList<>());
         } else if (studentsWishes.get(username).contains(gift)) {
             return "[ The same gift for student " + username + " was already submitted ]";
         }
@@ -58,7 +58,7 @@ public class StudentsWishes {
             return "[ There are no other students present in the wish list]";
         }
 
-        String randomStudent = students.get(RANDOM.nextInt(studentsCopy.size()));
+        String randomStudent = studentsCopy.get(RANDOM.nextInt(studentsCopy.size()));
         String randomStudentWishes = studentsWishes.get(randomStudent).toString();
         studentsWishes.remove(randomStudent);
 

@@ -25,10 +25,10 @@ public class Vault {
         String password = args[1];
 
         if (!validateUserName(username)) {
-            return String.format(" Username %S is invalid, select a valid one ]", username);
+            return String.format(" Username %s is invalid, select a valid one ]", username);
         }
         if (userExists(username)) {
-            return String.format(" Username %S is already taken, select another one ]", username);
+            return String.format(" Username %s is already taken, select another one ]", username);
         }
 
         vault.put(username, new ArrayList<String>());
@@ -95,7 +95,7 @@ public class Vault {
             return "[ Successfully logged out ]";
         }
 
-        return "[ Un successfully logged out ]";
+        return "[ Unsuccessfully logged out ]";
 
     }
 
